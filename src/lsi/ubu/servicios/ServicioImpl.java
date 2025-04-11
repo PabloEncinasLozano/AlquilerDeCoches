@@ -14,8 +14,6 @@ import lsi.ubu.excepciones.AlquilerCochesException;
 import lsi.ubu.util.PoolDeConexiones;
 
 public class ServicioImpl implements Servicio {
-	//Prueba commit Raul
-	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServicioImpl.class);
 
 	private static final int DIAS_DE_ALQUILER = 4;
