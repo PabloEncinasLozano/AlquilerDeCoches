@@ -14,6 +14,8 @@ import lsi.ubu.excepciones.AlquilerCochesException;
 import lsi.ubu.util.PoolDeConexiones;
 
 public class ServicioImpl implements Servicio {
+	//Prueba commit Raul
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServicioImpl.class);
 
 	private static final int DIAS_DE_ALQUILER = 4;
@@ -42,7 +44,7 @@ public class ServicioImpl implements Servicio {
 
 			/* A completar por el alumnado... */
 
-			/* ================================= AYUDA RÁPIDA ===========================*/
+			/* ================================= AYUDA Rï¿½PIDA ===========================*/
 			/*
 			 * Algunas de las columnas utilizan tipo numeric en SQL, lo que se traduce en
 			 * BigDecimal para Java.
