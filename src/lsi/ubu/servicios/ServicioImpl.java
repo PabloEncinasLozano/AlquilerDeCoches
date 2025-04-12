@@ -62,10 +62,14 @@ public class ServicioImpl implements Servicio {
 			 * calcular sumando los dias de alquiler (ver variable DIAS_DE_ALQUILER) a la
 			 * fecha ini.
 			 */
+			
+			
 
 		} catch (SQLException e) {
 			// Completar por el alumno
-
+			if (con != null) {
+				con.rollback();
+			}
 			LOGGER.debug(e.getMessage());
 
 			throw e;
