@@ -1,9 +1,11 @@
 package lsi.ubu.servicios;
 
 import java.sql.Connection;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -12,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import lsi.ubu.excepciones.AlquilerCochesException;
 import lsi.ubu.util.PoolDeConexiones;
+import lsi.ubu.util.exceptions.SGBDError;
+import lsi.ubu.util.exceptions.oracle.OracleSGBDErrorUtil;
 
 public class ServicioImpl implements Servicio {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServicioImpl.class);
@@ -24,7 +28,18 @@ public class ServicioImpl implements Servicio {
 		Connection con = null;
 		PreparedStatement st = null;
 		ResultSet rs = null;
+		
+		//Para la comporbacion de cliente y vehiculo
+		PreparedStatement inexCliente = null; //FAlta de cerrar abajo
+		PreparedStatement inexMatricula = null; //Falta de cerrar abajo
+		
+		ResultSet rsCliente = null;
+		ResultSet rsMatricula = null;
 
+		// Cambio de fecha a sql
+		java.sql.Date sqlFechaIni = new java.sql.Date(fechaIni.getTime());
+		java.sql.Date sqlFechaFin = new java.sql.Date(fechaFin.getTime());
+		
 		/*
 		 * El calculo de los dias se da hecho
 		 */
@@ -36,10 +51,54 @@ public class ServicioImpl implements Servicio {
 				throw new AlquilerCochesException(AlquilerCochesException.SIN_DIAS);
 			}
 		}
+		
 
 		try {
 			con = pool.getConnection();
+			
+			//Comprobaciones previas
+			try {
+				inexCliente = con.prepareStatement("SELECT 1 FROM clientes WHERE NIF = ?");
+				inexCliente.setString(1, nifCliente);
+				
+				rsCliente = inexCliente.executeQuery();
+				
+				if(!rsCliente.next()) {
+					throw new AlquilerCochesException(AlquilerCochesException.CLIENTE_NO_EXIST);
+				}	
+			} finally {
+				if(rsCliente != null) {
+					rsCliente.close();
+				}
+			}
+			
+			//Comprobaciones previas
+			try {
+				inexMatricula= con.prepareStatement("SELECT 1 FROM clientes WHERE matricula = ?");
+				inexMatricula.setString(1, matricula);
+				
+				rsMatricula = inexMatricula.executeQuery();
+				
+				if(!rsMatricula.next()) {
+					throw new AlquilerCochesException(AlquilerCochesException.VEHICULO_NO_EXIST);
+				}	
+			} finally {
+				if(rsMatricula != null) {
+					rsMatricula.close();
+				}
+			}
+				
+			
+			st = con.prepareStatement("INSERT INTO reservas (idReserva, Cliente, matricula, fecha_ini, fecha_fin) "
+					+ "VALUES(seq_reservas.nextval, ?, ?, ?, ?)");
+			st.setString(1, nifCliente);
+			st.setString(2, matricula);
+			st.setDate(3, sqlFechaIni);
+			st.setDate(4, sqlFechaFin);
 
+			st.executeUpdate();
+			
+			
 			/* A completar por el alumnado... */
 
 			/* ================================= AYUDA R�PIDA ===========================*/
@@ -63,19 +122,30 @@ public class ServicioImpl implements Servicio {
 			 * fecha ini.
 			 */
 			
-			
-
 		} catch (SQLException e) {
 			// Completar por el alumno
 			if (con != null) {
 				con.rollback();
 			}
+			
+			
 			LOGGER.debug(e.getMessage());
 
 			throw e;
 
 		} finally {
 			/* A rellenar por el alumnado*/
+			if (rs != null) {
+				rs.close();
+			}
+			
+			if (st != null) {
+				st.close();
+			}
+			
+			if (con != null) {
+				con.close();
+			}
 		}
 	}
 }
