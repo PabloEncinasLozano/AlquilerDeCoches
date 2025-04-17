@@ -5997,3 +5997,7 @@ DEBUG: [lsi.ubu.util.PoolDeConexiones.getConnection(PoolDeConexiones.java:111)]2
 INFO : [lsi.ubu.solucion.AlquilerCoches.ejecutarTests(AlquilerCoches.java:372)]2024-03-08 08:22:37.867 [main] AlquilerCoches - Caso alquiler correcto pero SI especifico la fecha final --------------
 INFO : [lsi.ubu.solucion.AlquilerCoches.ejecutarTests(AlquilerCoches.java:381)]2024-03-08 08:22:37.867 [main] AlquilerCoches - SI Coinciden la factura y las linea de factura OK
 INFO : [lsi.ubu.solucion.AlquilerCoches.main(AlquilerCoches.java:48)]2024-03-08 08:22:37.867 [main] AlquilerCoches - Fin de los tests
+INFO : [lsi.ubu.AlquilerCoches.main(AlquilerCoches.java:27)]2025-04-17 11:46:39.691 [main] AlquilerCoches - Comienzo de los tests
+ERROR: [lsi.ubu.util.ExecuteScript.run(ExecuteScript.java:59)]2025-04-17 11:46:39.707 [main] ExecuteScript - Cannot run program "sql/lanza_sqlplus.sh": error=13, Permiso denegado
+ERROR: [lsi.ubu.util.PoolDeConexiones.<init>(PoolDeConexiones.java:74)]2025-04-17 11:46:39.756 [main] PoolDeConexiones - Problema: no se encuentra el nombre del recurso en el contexto JNDI
+ERROR: [lsi.ubu.util.PoolDeConexiones.<init>(PoolDeConexiones.java:75)]2025-04-17 11:46:39.757 [main] PoolDeConexiones - testdb_pooled

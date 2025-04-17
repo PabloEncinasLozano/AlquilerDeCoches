@@ -32,13 +32,16 @@ public class ServicioImpl implements Servicio {
 		//Para la comporbacion de cliente y vehiculo
 		PreparedStatement inexCliente = null; //FAlta de cerrar abajo
 		PreparedStatement inexMatricula = null; //Falta de cerrar abajo
+		PreparedStatement dispVehiculo = null; //Falta de cerrar abajo
 		
 		ResultSet rsCliente = null;
 		ResultSet rsMatricula = null;
+		ResultSet rsVehiculo = null;
 
 		// Cambio de fecha a sql
 		java.sql.Date sqlFechaIni = new java.sql.Date(fechaIni.getTime());
 		java.sql.Date sqlFechaFin = new java.sql.Date(fechaFin.getTime());
+				
 		
 		/*
 		 * El calculo de los dias se da hecho
@@ -69,12 +72,13 @@ public class ServicioImpl implements Servicio {
 			} finally {
 				if(rsCliente != null) {
 					rsCliente.close();
+					inexCliente.close();
 				}
 			}
 			
 			//Comprobaciones previas
 			try {
-				inexMatricula= con.prepareStatement("SELECT 1 FROM clientes WHERE matricula = ?");
+				inexMatricula= con.prepareStatement("SELECT 1 FROM vehiculos WHERE matricula = ?");
 				inexMatricula.setString(1, matricula);
 				
 				rsMatricula = inexMatricula.executeQuery();
@@ -85,9 +89,41 @@ public class ServicioImpl implements Servicio {
 			} finally {
 				if(rsMatricula != null) {
 					rsMatricula.close();
+					inexMatricula.close();
 				}
 			}
+
+			
+			//Comprobaciones previas coche no dispoonible
+			try {
 				
+				
+				
+				
+				dispVehiculo= con.prepareStatement("SELECT fecha_fin FROM reservas WHERE matricula = ?");
+				dispVehiculo.setString(1, matricula);
+				
+				
+				rsVehiculo = dispVehiculo.executeQuery();
+				
+				Date fecha=rsVehiculo.getDate("fecha_fin");
+				
+				System.out.println(rsVehiculo);
+				
+				if(!rsVehiculo.next()) {
+					throw new AlquilerCochesException(AlquilerCochesException.VEHICULO_OCUPADO);
+				}	
+				
+				
+				//if (sqlFechaIni < rsVehiculo.afterLast()) {
+				//	throw new AlquilerCochesException(AlquilerCochesException.VEHICULO_OCUPADO);
+				//}
+			} finally {
+				if(rsVehiculo != null) {
+					rsVehiculo.close();
+					dispVehiculo.close();
+				}
+			}
 			
 			st = con.prepareStatement("INSERT INTO reservas (idReserva, Cliente, matricula, fecha_ini, fecha_fin) "
 					+ "VALUES(seq_reservas.nextval, ?, ?, ?, ?)");
