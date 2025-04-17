@@ -1,5 +1,6 @@
 package lsi.ubu.servicios;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 
 import java.sql.PreparedStatement;
@@ -40,7 +41,16 @@ public class ServicioImpl implements Servicio {
 
 		// Cambio de fecha a sql
 		java.sql.Date sqlFechaIni = new java.sql.Date(fechaIni.getTime());
-		java.sql.Date sqlFechaFin = new java.sql.Date(fechaFin.getTime());
+		
+		java.sql.Date sqlFechaFin = null;
+		
+		if (fechaFin!=null) {
+			sqlFechaFin = new java.sql.Date(fechaFin.getTime());
+		}else {
+			long fechaMillis = fechaIni.getTime() + TimeUnit.DAYS.toMillis(DIAS_DE_ALQUILER);
+			sqlFechaFin = new java.sql.Date(fechaMillis);
+		}
+
 				
 		
 		/*
@@ -97,18 +107,15 @@ public class ServicioImpl implements Servicio {
 			//Comprobaciones previas coche no dispoonible
 			try {
 				
-				
-				
-				
 				dispVehiculo= con.prepareStatement("SELECT fecha_fin FROM reservas WHERE matricula = ?");
 				dispVehiculo.setString(1, matricula);
 				
 				
 				rsVehiculo = dispVehiculo.executeQuery();
 				
-				Date fecha=rsVehiculo.getDate("fecha_fin");
+				//Date fecha=rsVehiculo.getDate("fecha_fin");
 				
-				System.out.println(rsVehiculo);
+				//System.out.println(rsVehiculo);
 				
 				if(!rsVehiculo.next()) {
 					throw new AlquilerCochesException(AlquilerCochesException.VEHICULO_OCUPADO);
