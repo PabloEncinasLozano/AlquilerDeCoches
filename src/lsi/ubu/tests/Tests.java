@@ -124,7 +124,7 @@ public class Tests {
 
 				LOGGER.info("Caso alquiler correcto pero NO especifico la fecha final --------------");
 
-				String resultadoPrevisto = "1234-ABC11-03-201313412345678A4 dias de alquiler, vehiculo modelo 2   64#1234-ABC11-03-201313412345678ADeposito lleno de 50 litros de Gasoil   70";
+				String resultadoPrevisto = "1234-ABC11-03-201313512345678A4 dias de alquiler, vehiculo modelo 1   60#1234-ABC11-03-201313512345678ADeposito lleno de 50 litros de Gasolina 75";
 
 				if (resultado.equals(resultadoPrevisto)) {
 					LOGGER.info("SI Coinciden la factura y las linea de factura  OK");
