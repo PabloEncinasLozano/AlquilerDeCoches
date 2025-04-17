@@ -97,9 +97,12 @@ public class ServicioImpl implements Servicio {
 					throw new AlquilerCochesException(AlquilerCochesException.VEHICULO_NO_EXIST);
 				}	
 			} finally {
+				if (inexMatricula !=null) {
+					inexMatricula.close();
+				}
 				if(rsMatricula != null) {
 					rsMatricula.close();
-					inexMatricula.close();
+					
 				}
 			}
 
@@ -107,29 +110,36 @@ public class ServicioImpl implements Servicio {
 			//Comprobaciones previas coche no dispoonible
 			try {
 				
-				dispVehiculo= con.prepareStatement("SELECT fecha_fin FROM reservas WHERE matricula = ?");
+				dispVehiculo= con.prepareStatement("SELECT fecha_ini, fecha_fin FROM reservas WHERE matricula = ?");
 				dispVehiculo.setString(1, matricula);
 				
 				
 				rsVehiculo = dispVehiculo.executeQuery();
+
+				while (rsVehiculo.next()) {
+					
+					java.sql.Date ultimaResFechaFin=rsVehiculo.getDate("fecha_fin");
+					java.sql.Date ultimaResFechaIni=rsVehiculo.getDate("fecha_ini");
 				
-				//Date fecha=rsVehiculo.getDate("fecha_fin");
+					if (!(sqlFechaIni.after(ultimaResFechaFin)  || sqlFechaFin.before(ultimaResFechaIni))) {
+						throw new AlquilerCochesException(AlquilerCochesException.VEHICULO_OCUPADO);
+					}
+				}
 				
-				//System.out.println(rsVehiculo);
-				
-				if(!rsVehiculo.next()) {
-					throw new AlquilerCochesException(AlquilerCochesException.VEHICULO_OCUPADO);
-				}	
-				
-				
-				//if (sqlFechaIni < rsVehiculo.afterLast()) {
-				//	throw new AlquilerCochesException(AlquilerCochesException.VEHICULO_OCUPADO);
-				//}
 			} finally {
-				if(rsVehiculo != null) {
-					rsVehiculo.close();
+				if (dispVehiculo!=null) {
 					dispVehiculo.close();
 				}
+				if(rsVehiculo != null) {
+					rsVehiculo.close();
+				}
+			}
+			
+			
+			//Comprobacion de si especifico la fecha final
+			if (fechaFin==null) {
+				long fechaMillis = fechaIni.getTime() + TimeUnit.DAYS.toMillis(DIAS_DE_ALQUILER);
+				sqlFechaFin = new java.sql.Date(fechaMillis);
 			}
 			
 			st = con.prepareStatement("INSERT INTO reservas (idReserva, Cliente, matricula, fecha_ini, fecha_fin) "
