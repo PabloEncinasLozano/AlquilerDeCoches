@@ -71,6 +71,26 @@ public class ServicioImpl implements Servicio {
 			
 			//Comprobaciones previas
 			try {
+				inexMatricula= con.prepareStatement("SELECT matricula FROM vehiculos WHERE matricula = ?");
+				inexMatricula.setString(1, matricula);
+				
+				rsMatricula = inexMatricula.executeQuery();
+				
+				if(!rsMatricula.next()) {
+					throw new AlquilerCochesException(AlquilerCochesException.VEHICULO_NO_EXIST);
+				}	
+			} finally {
+				if (inexMatricula !=null) {
+					inexMatricula.close();
+				}
+				if(rsMatricula != null) {
+					rsMatricula.close();
+					
+				}
+			}
+			
+			//Comprobaciones previas
+			try {
 				inexCliente = con.prepareStatement("SELECT * FROM clientes WHERE NIF = ?");
 				inexCliente.setString(1, nifCliente);
 				
@@ -88,26 +108,6 @@ public class ServicioImpl implements Servicio {
 				}
 			}
 			
-			//Comprobaciones previas
-			try {
-				inexMatricula= con.prepareStatement("SELECT * FROM vehiculos WHERE matricula = ?");
-				inexMatricula.setString(1, matricula);
-				
-				rsMatricula = inexMatricula.executeQuery();
-				
-				if(!rsMatricula.next()) {
-					throw new AlquilerCochesException(AlquilerCochesException.VEHICULO_NO_EXIST);
-				}	
-			} finally {
-				if (inexMatricula !=null) {
-					inexMatricula.close();
-				}
-				if(rsMatricula != null) {
-					rsMatricula.close();
-					
-				}
-			}
-
 			
 			//Comprobaciones previas coche no disponible
 			try {
