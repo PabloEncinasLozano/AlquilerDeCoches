@@ -139,6 +139,8 @@ public class ServicioImpl implements Servicio {
 			
 			
 			//Comprobacion de si especifico la fecha final
+			//
+			//Creo que esta parte es repetida
 			if (fechaFin==null) {
 				long fechaMillis = fechaIni.getTime() + TimeUnit.DAYS.toMillis(DIAS_DE_ALQUILER);
 				sqlFechaFin = new java.sql.Date(fechaMillis);
