@@ -46,9 +46,6 @@ public class ServicioImpl implements Servicio {
 		
 		if (fechaFin!=null) {
 			sqlFechaFin = new java.sql.Date(fechaFin.getTime());
-		}else {
-			long fechaMillis = fechaIni.getTime() + TimeUnit.DAYS.toMillis(DIAS_DE_ALQUILER);
-			sqlFechaFin = new java.sql.Date(fechaMillis);
 		}
 
 				
@@ -138,14 +135,6 @@ public class ServicioImpl implements Servicio {
 			}
 			
 			
-			//Comprobacion de si especifico la fecha final
-			//
-			//Creo que esta parte es repetida
-			if (fechaFin==null) {
-				long fechaMillis = fechaIni.getTime() + TimeUnit.DAYS.toMillis(DIAS_DE_ALQUILER);
-				sqlFechaFin = new java.sql.Date(fechaMillis);
-			}
-			
 			st = con.prepareStatement("INSERT INTO reservas (idReserva, Cliente, matricula, fecha_ini, fecha_fin) "
 					+ "VALUES(seq_reservas.nextval, ?, ?, ?, ?)");
 			st.setString(1, nifCliente);
@@ -155,7 +144,45 @@ public class ServicioImpl implements Servicio {
 
 			st.executeUpdate();
 			
+			String query = "SELECT precio_cada_dia, capacidad_deposito, precio_por_litro, id_modelo, tipo_combustible "
+					+ "FROM vehiculos "
+					+ "NATURAL JOIN modelos "
+					+ "NATURAL JOIN precio_combustible "
+					+ "WHERE matricula = ?";
 			
+			st = con.prepareStatement(query);
+			st.setString(1, matricula);
+			
+			rs = st.executeQuery();
+			
+			rs.next();
+			
+			BigDecimal dias = new BigDecimal(diasDiff);
+			BigDecimal precio_dias = rs.getBigDecimal(1).multiply(dias);
+			
+			BigDecimal capacidad = new BigDecimal(rs.getInt(2));
+			BigDecimal precio_combustible = rs.getBigDecimal(3).multiply(capacidad);
+			BigDecimal precio_total = precio_dias.add(precio_combustible);
+			
+			st = con.prepareStatement("INSERT INTO facturas VALUES (seq_num_fact.nextval, ?, ?)");
+			st.setBigDecimal(1, precio_total);
+			st.setString(2, nifCliente);
+			
+			st.executeUpdate();
+			
+			st = con.prepareStatement("INSERT INTO lineas_factura VALUES (seq_num_fact.currval, ?, ?)");
+			String concepto = dias + " dias de alquiler, vehiculo modelo " + rs.getInt(4);
+			st.setString(1, concepto);
+			st.setBigDecimal(2, precio_dias);
+			st.executeUpdate();
+			
+			st = con.prepareStatement("INSERT INTO lineas_factura VALUES (seq_num_fact.currval, ?, ?)");
+			concepto = "Deposito lleno de " + capacidad + " litros de " + rs.getString(5);
+			st.setString(1, concepto);
+			st.setBigDecimal(2, precio_combustible);
+			st.executeUpdate();
+			
+			con.commit();		
 			/* A completar por el alumnado... */
 
 			/* ================================= AYUDA R�PIDA ===========================*/
